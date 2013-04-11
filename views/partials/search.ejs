@@ -1,0 +1,92 @@
+<div id="search">
+    <h4>Search</h4>
+
+    <form id="form-search">
+
+        <div class="span4">
+
+            <h4>1. Pick up language and skill level</h4>
+            <label>Language</label>
+            <select name="language">
+                <option value="french">French</option>
+                <option value="english">English</option>
+                <option value="spanish">Spanish</option>
+            </select>
+            <label>Skill</label>
+            <select name="skill">
+                <option value="beginner">Beginner</option>
+                <option value="intermediare">Intermediare</option>
+                <option value="advanced">Advanced</option>
+            </select>
+
+        </div>
+        <div class="span7 offset1">
+            <h4>2. Select point of interest (optional)</h4>
+
+            <p>You may select your points of interest to find a chat partner matching your personal interests. Select as
+                many topics as you like:</p>
+
+            <select name="interests" id="interest-multi-select" multiple="multiple">
+                <option value="business" selected>business</option>
+                <option value="autos" selected>autos</option>
+                <option value="games" selected>games</option>
+                <option value="health">health</option>
+                <option value="finance">finance</option>
+                <option value="electronics">electronics</option>
+            </select>
+
+        </div>
+        <div class="row">
+            <div class="span4"></div>
+            <div class="span7 offset1">
+                <h4>3. Start chatting</h4>
+
+                <p>We are ready to find a discussion partner for you. Click the button below to queue up for a chat</p>
+
+                <div class="pull-right">
+
+                    <input type="submit" value="Match me" class="btn btn-primary pull-right">
+
+                </div>
+            </div>
+        </div>
+
+    </form>
+
+
+    <script type="text/javascript">
+
+        $('#form-search').submit(function (event) {
+
+
+            event.preventDefault();
+            // ajax login
+            $.ajax('/api/match', {
+                method: 'post',
+                data: $('#form-search').serialize(),
+                dataType: 'json',
+                beforeSend: function () {
+
+                    var ajax_image = "<img src='assets/img/ajax_loader.gif' alt='Loading...' align='middle' />";
+                    $('#search').html(ajax_image);
+
+                },
+                success: function (response) {
+                    if (response.error == 0) {
+
+
+                        $("#main-body").load("/partials/videoChat")
+
+
+                    } else {
+                        $('#message').empty().append('<p>' + response.status + '</p>').show();
+                    }
+                }
+            });
+        });
+
+    </script>
+
+
+</div><!--./Search-->
+

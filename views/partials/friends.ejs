@@ -1,0 +1,106 @@
+<!--Right Sidebar content-->
+<ul class="nav nav-tabs">
+    <li class="active">
+        <a id="tab-friends" href="#friends" data-toggle="tab">Friends</a>
+    </li>
+    <li>
+        <a id="tab-add-friend" href="#addFriend" data-toggle="tab">Add Friend</a>
+    </li>
+</ul>
+
+<div id="myTabContent" class="tab-content">
+    <!-- friend list tab -->
+    <div class="tab-pane fade in active" id="friends">
+        <h5 style="border-bottom: 1px dotted gray">Online</h5>
+        <ul style="list-style: none; margin-left: 5px;">
+            <% if(session.user.friends) { %>
+            <% for(var i=0; i < session.user.friends.length; i++){ %>
+            <% if(session.user.friends[i].connect_state) { %>
+            <li style="background-color: #f4f4f4; padding: 4px; margin-bottom: 3px; border-radius: 4px; -webkit-border-radius: 4px;">
+                <a href="#" style="text-decoration: none;"><%=session.user.friends[i].name.first%>&nbsp;<%=session.user.friends[i].name.last%></a>
+                <a class="close" href="#" item-ref="<%=session.user.friends[i]._id%>"
+                   style="float:right">&times;</a>
+            </li>
+            <% } %>
+            <% } %>
+            <% } %>
+        </ul>
+        <h5 style="margin-top: 20px; border-bottom: 1px dotted gray">Offline</h5>
+        <ul style="list-style: none; margin-left: 5px;">
+            <% if(session.user.friends) { %>
+            <% for(var i=0; i < session.user.friends.length; i++){ %>
+            <% if(!session.user.friends[i].connect_state) { %>
+            <li style="background-color: #f4f4f4; padding: 4px; margin-bottom: 3px; border-radius: 4px; -webkit-border-radius: 4px;">
+                <a href="#" style="text-decoration: none; color: #333333;"><%=session.user.friends[i].name.first%>&nbsp;<%=session.user.friends[i].name.last%></a>
+                <a class="close" href="#" item-ref="<%=session.user.friends[i]._id%>"
+                   style="float:right">&times;</a>
+            </li>
+            <% } %>
+            <% } %>
+            <% } %>
+        </ul>
+    </div>
+    <!--Add Friend tab-->
+    <div class="tab-pane fade" id="addFriend">
+        <div class="form-actions">
+            <form id="add-friend-form" method="post">
+                <label for="add-user-email">Enter email address to add as a friend</label>
+                <input id="add-user-email" name="adduser_email" class="input-small" type="text"
+                       placeholder="Email"><br/>
+                <button type="submit" class="btn btn-primary">Add</button>
+            </form>
+        </div>
+        <script type="text/javascript">
+            var form = $('#add-friend-form');
+            form.off();
+            form.submit(function (event) {
+                // don't submit form
+                event.preventDefault();
+                // try to add friend
+                $.ajax('/api/friends/add', {
+                    method: 'post',
+                    data: $('#add-friend-form').serialize(),
+                    success: function (res) {
+                        alert(res);
+                        // reload friends list
+                        friendManager.startTimer();
+                    }
+                });
+            });
+            var links = $('#friends').find('a.close');
+            links.off();
+            links.click(function (event) {
+                // don't react to link click
+                event.preventDefault();
+                // remove friend
+                var element = $(this);
+                if (element.attr('item-ref')) {
+                    // try to remove friend
+                    $.ajax('/api/friends/delete', {
+                        method: 'post',
+                        data: {'user_id': element.attr('item-ref')},
+                        success: function (res) {
+                            alert(res);
+                            // reload friends list
+                            $('#friends-container').load('/partials/friends');
+                        }
+                    });
+                }
+            });
+        </script>
+    </div>
+    <!--./tab addFriends-->
+</div>
+<!--./tab content-->
+<script type="text/javascript">
+    var tabFriends = $('#tab-friends');
+    tabFriends.off();
+    tabFriends.click(function () {
+        friendManager.startTimer();
+    });
+    var tabAdd = $('#tab-add-friend');
+    tabAdd.off();
+    tabAdd.click(function () {
+        friendManager.stopTimer();
+    });
+</script>

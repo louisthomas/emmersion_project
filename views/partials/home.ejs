@@ -1,0 +1,28 @@
+<div id="home">
+    <h4>Home</h4>
+
+    <h5>Share something</h5>
+
+    <form id="form-share" class="form-inline">
+        <input type="text" class="input-xxlarge" name="input" placeholder="Share something?">
+        <button type="submit" class="btn">Share</button>
+    </form>
+
+    <div id="news-list">
+        <% include news.ejs %>
+    </div>
+
+    <script type="text/javascript">
+        var formShare = $('#form-share');
+        formShare.off();
+        formShare.submit(function (e) {
+            e.preventDefault();
+            $.post('/api/news/post', formShare.serialize(), function () {
+                $('#news-list').load('/partials/news');
+            });
+            formShare.find('input').val('');
+        });
+    </script>
+
+
+</div><!--./Home-->

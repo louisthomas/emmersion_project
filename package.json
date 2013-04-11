@@ -1,0 +1,24 @@
+{
+  "name": "log350",
+  "version": "0.0.1",
+  "description": "LOG350 Project",
+  "main": "server.js",
+  "dependencies": {
+    "ejs": "*",
+    "mongoose": "*",
+    "express": "*",
+    "ejs-locals": "~1.0.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": "",
+  "author": "",
+  "license": "BSD",
+  "subdomain": "log350-nodejs",
+  "engines": {
+    "node": "0.8.x"
+  }
+}

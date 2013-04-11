@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet" media="screen">
+</head>
+<body>
+<div class="container">
+    <h1>Admin</h1>
+
+    <p>Requires: server.js running and mongodb server running.</p>
+
+    <div id="message" class="alert" style="display:none">
+        <p></p>
+    </div>
+    <div class="row">
+        <div class="span3">
+            <form id="form-user">
+                <fieldset>
+                    <legend>New User</legend>
+                    <label>Email</label>
+                    <input type="text" name="email"/>
+                    <label>Password</label>
+                    <input type="text" name="password"/>
+                    <label>First Name</label>
+                    <input type="text" name="firstname"/>
+                    <label>Last Name</label>
+                    <input type="text" name="lastname"/>
+                    <label>Location</label>
+                    <input type="text" name="location"/>
+                    <label>Language</label>
+                    <input type="text" name="language"/>
+                    <button type="button" class="btn" onclick="api.create()">Create</button>
+                </fieldset>
+            </form>
+        </div>
+        <div class="span9">
+            <div class="navbar">
+                <div class="navbar-inner">
+                    <form class="navbar-search pull-left" onsubmit="return api.searchSubmit(this)">
+                        <input type="text" class="search-query" placeholder="Search">
+                    </form>
+                </div>
+            </div>
+            <table class="table table-striped table-hover table-bordered" id="display">
+                <thead>
+                <tr>
+                    <th>Email</th>
+                    <th>Password</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Language</th>
+                    <th>Location</th>
+                    <th>Last Connect</th>
+                    <th>Created</th>
+                    <th>Delete</th>
+                </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="assets/js/jquery-1.9.1.min.js"></script>
+<script src="assets/js/bootstrap.min.js"></script>
+<script type="text/javascript">
+
+    if (!String.prototype.format) {
+        String.prototype.format = function () {
+            var args = arguments;
+            return this.replace(/{(\d+)}/g, function (match, number) {
+                return typeof args[number] != 'undefined' ? args[number] : match;
+            });
+        };
+    }
+
+    function UserApi() {
+        this.initialize();
+    }
+
+    $.extend(UserApi.prototype, {
+        template: '<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td><td>{5}</td><td>{6}</td><td>{7}</td><td><button class="close" onclick="api.delete(\'{8}\')" title="Delete">&times;</button></td></tr>',
+        initialize: function () {
+            this.search();
+        },
+        create: function () {
+            $.post('/admin/user/create', $('#form-user').serialize(), function (result) {
+                if (result) {
+                    $('#message').removeClass('alert-error').addClass('alert-success').show().find('p').empty().append('Creation successful');
+                    this.search();
+                } else {
+                    $('#message').removeClass('alert-success').addClass('alert-error').show().find('p').empty().append('Creation failed');
+                    this.search();
+                }
+            }.bind(this));
+        },
+        delete: function (id) {
+            $.post('/admin/user/delete', {"id": id}, function (result) {
+                var json = JSON.parse(result);
+                if (json) {
+                    $('#message').removeClass('alert-error').addClass('alert-success').show().find('p').empty().append('Deletion successful');
+                    this.search();
+                } else {
+                    $('#message').removeClass('alert-success').addClass('alert-error').show().find('p').empty().append('Deletion failed');
+                    this.search();
+                }
+            }.bind(this));
+        },
+        display: function (data) {
+            var tbody = $('#display').find('tbody');
+            tbody.find('tr').remove();
+            for (var i in data) {
+                var item = data[i];
+                tbody.append(new String(this.template).format(item.email, item.password, item.name.first, item.name.last, item.language, item.location, item.last_time_connect, item.date_created, item._id));
+            }
+        },
+        search: function (query) {
+            var q = query || '';
+            $.getJSON('/admin/user/search', {'q': q}, function (json) {
+                this.display(json);
+            }.bind(this));
+        },
+        searchSubmit: function (form) {
+            this.search($(form).find('input').val());
+            return false;
+        }
+    });
+
+    var api = new UserApi();
+</script>
+</body>
+</html>

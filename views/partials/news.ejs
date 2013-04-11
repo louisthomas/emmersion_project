@@ -1,0 +1,20 @@
+<h5>News Feed</h5>
+
+<ul style="list-style: none; margin:0; max-height: 600px; overflow: auto;">
+    <% if(session.news) { %>
+    <% for (var i = 0; i < session.news.length; i++) { %>
+    <li style="border-bottom: 1px #ddd dotted; margin-bottom: 15px; padding: 10px; ">
+        <h5 style="margin:0; width: 300px; overflow: hidden; color: #0088cc;"><%= session.news[i].owner.name.last %>, <%=
+            session.news[i].owner.name.first %></h5>
+        <span class="timestamp" style="font-size: 11px; color: gray;" title="<%= session.news[i].timestamp.toISOString() %>"><%= session.news[i].timestamp %></span>
+        <p class="message" style="clear:both"><%= session.news[i].message %></p>
+    </li>
+    <% } %>
+    <% } %>
+</ul>
+
+<script type="text/javascript">
+    $(function () {
+        $("span.timestamp").prettyDate();
+    });
+</script>

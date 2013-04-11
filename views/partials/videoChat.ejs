@@ -1,0 +1,83 @@
+<h1>Title</h1>
+
+<div id='streams'></div>
+
+<div class='span5'>
+    <div id="myPublisherDiv"></div>
+</div>
+
+<div class='span5'>
+    <div id="subscriberContainer"></div>
+</div>
+
+<div class="span10" style="margin-top: 20px">
+    <div id="notificationContainer"></div>
+    <!-- Button to trigger modal -->
+    <a href="#myModal" role="button" class="btn" data-toggle="modal">End Chat</a>
+</div>
+
+<!-- Modal -->
+<div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+
+        <h3 id="myModalLabel">Rating</h3>
+    </div>
+    <div class="modal-body">
+        <br>
+
+        <p>How was your meeting?</p>
+
+        <div id="star" data-number="10"></div>
+        <br>
+        <br>
+        <script type="text/javascript">
+            $('#star').raty({
+                number: function () {
+                    return $(this).attr('data-number');
+                }
+            });
+        </script>
+        <div class="modal-footer">
+            <a id="send-button" href="/dashboard" class="btn btn-primary">Send</a>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    // Initialize API key, session, and token...
+    // Think of a session as a room, and a token as the key to get in to the room
+    // Sessions and tokens are generated on your server and passed down to the client
+    var apiKey = "23328562";
+    var sessionId = "2_MX4yMzMyODU2Mn4xMjcuMC4wLjF-V2VkIE1hciAyMCAxNjoxODozMCBQRFQgMjAxM34wLjQ5OTI3MDg2fg";
+    var token = "T1==cGFydG5lcl9pZD0yMzMyODU2MiZzZGtfdmVyc2lvbj10YnJ1YnktdGJyYi12MC45MS4yMDExLTAyLTE3JnNpZz1jYWRlMjgyNDMwZmY1MmM4OGY0OGY3ZDExZTdkY2E3N2E5OTVlYzlmOnJvbGU9cHVibGlzaGVyJnNlc3Npb25faWQ9Ml9NWDR5TXpNeU9EVTJNbjR4TWpjdU1DNHdMakYtVjJWa0lFMWhjaUF5TUNBeE5qb3hPRG96TUNCUVJGUWdNakF4TTM0d0xqUTVPVEkzTURnMmZnJmNyZWF0ZV90aW1lPTEzNjM4MjE1MTEmbm9uY2U9MC40ODYyNTY3NzIxODY0MTY2JmV4cGlyZV90aW1lPTEzNjY0MTM1MDUmY29ubmVjdGlvbl9kYXRhPQ==";
+    // Initialize session, set up event listeners, and connect
+    var session = TB.initSession(sessionId);
+    session.addEventListener('sessionConnected', sessionConnectedHandler);
+    session.addEventListener('streamCreated', streamCreatedHandler);
+    session.connect(apiKey, token);
+
+    function sessionConnectedHandler(event) {
+        var publisher = TB.initPublisher(apiKey, 'myPublisherDiv');
+        session.publish(publisher);
+    }
+    function streamCreatedHandler(event) {
+        // Subscribe to any new streams that are created
+        subscribeToStreams(event.streams);
+    }
+    function subscribeToStreams(streams) {
+        for (var i = 0; i < streams.length; i++) {
+            // Make sure we don't subscribe to ourself
+            if (streams[i].connection.connectionId == session.connection.connectionId) {
+                return;
+            }
+
+            // Create the div to put the subscriber element in to
+            var div = document.createElement('div');
+            div.setAttribute('id', 'subscriberContainer');
+            document.body.appendChild(div);
+
+            // Subscribe to the stream
+            session.subscribe(streams[i], div.id);
+        }
+    }
+</script>
